@@ -1,4 +1,3 @@
-import base64
 import math
 import re
 from pathlib import Path
@@ -12,7 +11,6 @@ import streamlit as st
 # ============================================================
 
 LOGO_PATH = Path(__file__).with_name("ajilanem_logo.svg")
-LOGO_DATA_URI = f"data:image/svg+xml;base64,{base64.b64encode(LOGO_PATH.read_bytes()).decode('ascii')}"
 
 st.set_page_config(
     page_title="Ajilanem | Estadística fácil",
@@ -567,13 +565,6 @@ div[data-testid="stMetricValue"] {
     text-transform: uppercase;
 }
 
-.brand-mark {
-    display: block;
-    width: 1.65rem;
-    height: 1.65rem;
-    margin-right: .35rem;
-}
-
 .hero-heading {
     margin: .7rem 0 .4rem;
     color: #34284d;
@@ -905,15 +896,18 @@ with intro:
         else f"Resumen de {result['n']} datos. Edita la lista cuando quieras actualizar el análisis."
     )
     st.markdown(
-        f"""
-        <div class="{heading_class}">
-            <div class="hero-kicker"><img class="brand-mark" src="{LOGO_DATA_URI}" alt="Símbolo inspirado en el cero maya">ESTADÍSTICA, SIN COMPLICACIONES</div>
-            <h1 class="hero-heading">{heading}</h1>
-            <p class="hero-copy">{copy}</p>
-        </div>
-        """,
+        '<div class="hero-kicker">◈ &nbsp; ESTADÍSTICA, SIN COMPLICACIONES</div>',
         unsafe_allow_html=True,
     )
+    brand_mark, brand_name = st.columns([0.13, 1], gap="small", vertical_alignment="center")
+    with brand_mark:
+        st.image(LOGO_PATH, width=68, alt="Emblema inspirado en el cero maya")
+    with brand_name:
+        st.markdown(
+            f'<div class="{heading_class}"><h1 class="hero-heading">{heading}</h1></div>',
+            unsafe_allow_html=True,
+        )
+    st.markdown(f'<p class="hero-copy">{copy}</p>', unsafe_allow_html=True)
 with entry:
     with st.container(border=True, key="data-card"):
         st.markdown('<div class="section-eyebrow">Conjunto de datos</div>', unsafe_allow_html=True)
