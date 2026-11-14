@@ -1,23 +1,58 @@
 import math
 import re
 from pathlib import Path
+from urllib.parse import quote
 
 import numpy as np
 import pandas as pd
 import streamlit as st
+from matplotlib.colors import LinearSegmentedColormap
 
 # ============================================================
-# AJILANEM — Estadística fácil
+# QUANTYX 86 — Estadística fácil
 # ============================================================
 
-LOGO_PATH = Path(__file__).with_name("ajilanem_logo.svg")
+DARK_LOGO_PATH = Path(__file__).with_name("Quantyx 86_ Neon Data Emblem-1.png")
+LIGHT_LOGO_PATH = Path(__file__).with_name("Quantyx 86 Neon Data Emblem-2.png")
+PAGE_ICON_PATH = Path(__file__).with_name("Neon Data Emblem_ Quantyx 86-3.png")
 
 st.set_page_config(
-    page_title="Ajilanem | Estadística fácil",
-    page_icon=LOGO_PATH,
+    page_title="Quantyx 86 | Estadística fácil",
+    page_icon=PAGE_ICON_PATH,
     layout="wide",
     initial_sidebar_state="collapsed",
 )
+
+THEME_PALETTES = {
+    "dark": {
+        "background": "#282828",
+        "panel": "#3c3836",
+        "secondary": "#504945",
+        "text": "#ebdbb2",
+        "muted": "#d5c4a1",
+        "border": "#665c54",
+        "accent": "#fabd2f",
+        "button_text": "#282828",
+        "glyph": "#a89984",
+        "grid": "rgba(168, 153, 132, .28)",
+        "table_alt": "rgba(80, 73, 69, .72)",
+    },
+    "light": {
+        "background": "#fbf1c7",
+        "panel": "#ebdbb2",
+        "secondary": "#f2e5bc",
+        "text": "#3c3836",
+        "muted": "#665c54",
+        "border": "#a89984",
+        "accent": "#d79921",
+        "button_text": "#282828",
+        "glyph": "#928374",
+        "grid": "rgba(102, 92, 84, .32)",
+        "table_alt": "#f2e5bc",
+    },
+}
+dark_mode = st.session_state.get("theme-dark-mode", True)
+theme_palette = THEME_PALETTES["dark" if dark_mode else "light"]
 
 # ----------------------------- ESTILOS ----------------------------
 st.markdown("""
@@ -562,7 +597,7 @@ div[data-testid="stMetricValue"] {
     font-size: .76rem;
     font-weight: 750;
     letter-spacing: .08em;
-    text-transform: uppercase;
+    text-transform: none;
 }
 
 .hero-heading {
@@ -684,8 +719,627 @@ div[data-testid="stMetricValue"] {
 [data-testid="stHeader"] { background: transparent; }
 [data-testid="stToolbar"] { visibility: hidden; }
 footer { display: none; }
+
+:root {
+    color-scheme: dark;
+}
+
+.stApp,
+[data-testid="stAppViewContainer"] {
+    background:
+        radial-gradient(ellipse at 12% 8%, rgba(211, 134, 155, .11), transparent 34%),
+        radial-gradient(ellipse at 88% 16%, rgba(131, 165, 152, .12), transparent 32%),
+        radial-gradient(ellipse at 74% 94%, rgba(215, 153, 33, .08), transparent 38%),
+        #282828 !important;
+    background-attachment: fixed !important;
+    color: #ebdbb2 !important;
+}
+
+.stMarkdown,
+.stText,
+.stCaptionContainer,
+p,
+li,
+label,
+[data-testid="stCaptionContainer"] {
+    color: #d5c4a1 !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+.hero-heading {
+    color: #fbf1c7 !important;
+}
+
+.hero-heading span {
+    color: #fabd2f !important;
+}
+
+.hero-copy {
+    color: #d5c4a1 !important;
+}
+
+.hero-kicker {
+    color: #fabd2f !important;
+    background: rgba(60, 56, 54, .82) !important;
+    border-color: rgba(168, 153, 132, .34) !important;
+}
+
+.section-eyebrow {
+    color: #d79921 !important;
+}
+
+.glass-card,
+[data-testid="stVerticalBlockBorderWrapper"] {
+    background: linear-gradient(
+        145deg,
+        rgba(60, 56, 54, .94),
+        rgba(50, 48, 46, .92) 58%,
+        rgba(40, 40, 40, .9)
+    ) !important;
+    border: 1px solid rgba(168, 153, 132, .28) !important;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, .24),
+                inset 0 1px 0 rgba(235, 219, 178, .08) !important;
+    backdrop-filter: blur(18px) saturate(125%) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(125%) !important;
+}
+
+[data-testid="stVerticalBlockBorderWrapper"]:hover {
+    box-shadow: 0 18px 42px rgba(0, 0, 0, .32),
+                inset 0 1px 0 rgba(235, 219, 178, .1) !important;
+}
+
+.glass-card,
+.glass-card p,
+.glass-card span {
+    color: #d5c4a1 !important;
+}
+
+div[data-baseweb="textarea"] {
+    background: rgba(40, 40, 40, .82) !important;
+    border: 1px solid #665c54 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .18) !important;
+}
+
+div[data-baseweb="textarea"]:hover {
+    border-color: #a89984 !important;
+}
+
+div[data-baseweb="textarea"]:focus-within {
+    border-color: #fabd2f !important;
+    box-shadow: 0 0 0 3px rgba(250, 189, 47, .2) !important;
+}
+
+div[data-baseweb="textarea"] textarea,
+[data-testid="stSidebar"] .stTextArea textarea {
+    color: #ebdbb2 !important;
+    -webkit-text-fill-color: #ebdbb2 !important;
+    caret-color: #fabd2f !important;
+}
+
+div[data-baseweb="textarea"] textarea::placeholder {
+    color: #a89984 !important;
+    -webkit-text-fill-color: #a89984 !important;
+}
+
+.stButton > button[data-testid="stBaseButton-primary"] {
+    background: linear-gradient(120deg, #d79921, #b57614) !important;
+    border: 1px solid rgba(250, 189, 47, .45) !important;
+    color: #282828 !important;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, .25) !important;
+}
+
+.stButton > button[data-testid="stBaseButton-primary"] *,
+.stButton > button[kind="primary"] * {
+    color: #282828 !important;
+}
+
+.stButton > button[data-testid="stBaseButton-secondary"],
+.stDownloadButton > button {
+    background: rgba(80, 73, 69, .78) !important;
+    border: 1px solid #665c54 !important;
+    color: #ebdbb2 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .18) !important;
+}
+
+.stButton > button[data-testid="stBaseButton-secondary"] *,
+.stDownloadButton > button * {
+    color: #ebdbb2 !important;
+}
+
+.stButton > button[data-testid="stBaseButton-tertiary"],
+.stButton > button[data-testid="stBaseButton-tertiary"] * {
+    color: #d5c4a1 !important;
+}
+
+.stButton > button:focus-visible,
+.stDownloadButton > button:focus-visible,
+div[data-baseweb="textarea"]:focus-within {
+    outline-color: #fabd2f !important;
+}
+
+div[data-testid="stMetric"] {
+    background: rgba(40, 40, 40, .48) !important;
+    border-color: rgba(168, 153, 132, .28) !important;
+}
+
+div[data-testid="stMetricLabel"] {
+    color: #a89984 !important;
+}
+
+div[data-testid="stMetricValue"] {
+    color: #fabd2f !important;
+}
+
+[data-testid="stTabs"] button,
+[data-testid="stSegmentedControl"] button {
+    color: #d5c4a1 !important;
+}
+
+[data-testid="stTabs"] button[aria-selected="true"],
+[data-testid="stSegmentedControl"] button[aria-pressed="true"] {
+    color: #fabd2f !important;
+}
+
+[data-testid="stDataFrame"] {
+    background: rgba(40, 40, 40, .42) !important;
+    border-color: #665c54 !important;
+}
+
+[data-testid="stDataFrame"] * {
+    color: #ebdbb2 !important;
+}
+
+.insight-strip {
+    color: #ebdbb2 !important;
+    background: linear-gradient(105deg, rgba(102, 92, 84, .72), rgba(60, 56, 54, .78) 52%, rgba(69, 88, 72, .62)) !important;
+    border-color: rgba(168, 153, 132, .28) !important;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, .18) !important;
+}
+
+.insight-icon {
+    background: rgba(80, 73, 69, .9) !important;
+}
+
+.badge {
+    background: rgba(250, 189, 47, .12) !important;
+    color: #fabd2f !important;
+    border-color: rgba(250, 189, 47, .28) !important;
+}
+
+[data-testid="stAlert"] {
+    background: rgba(251, 73, 52, .12) !important;
+    border-color: rgba(251, 73, 52, .35) !important;
+    color: #fbf1c7 !important;
+}
+
+[data-testid="stHeader"] {
+    background: transparent !important;
+}
+
+/* Gruvbox retro finish */
+html,
+body,
+[data-testid="stAppViewContainer"],
+h1,
+h2,
+h3,
+h4,
+p,
+label,
+button,
+textarea,
+[data-testid="stCaptionContainer"] {
+    font-family: "Pixelify Sans", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace !important;
+}
+
+.stApp,
+[data-testid="stAppViewContainer"] {
+    background: #282828 !important;
+    background-image: none !important;
+}
+
+.stMarkdown,
+.stText,
+.stCaptionContainer,
+p,
+li,
+label,
+[data-testid="stCaptionContainer"] {
+    color: #d5c4a1 !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+.hero-heading {
+    color: #fbf1c7 !important;
+    letter-spacing: 0 !important;
+}
+
+.hero-heading span,
+.section-eyebrow {
+    color: #fabd2f !important;
+}
+
+.hero-kicker,
+.badge {
+    background: #3c3836 !important;
+    color: #fabd2f !important;
+    border: 2px solid #665c54 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.glass-card,
+[data-testid="stVerticalBlockBorderWrapper"],
+div[data-testid="stMetric"],
+[data-testid="stDataFrame"] {
+    background: #3c3836 !important;
+    border: 2px solid #665c54 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transition: none !important;
+    transform: none !important;
+}
+
+[data-testid="stVerticalBlockBorderWrapper"]:hover {
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.glass-card,
+.glass-card p,
+.glass-card span,
+.hero-copy,
+div[data-testid="stMetricLabel"] {
+    color: #d5c4a1 !important;
+}
+
+div[data-testid="stMetricValue"] {
+    color: #fabd2f !important;
+}
+
+.insight-strip {
+    background: #504945 !important;
+    color: #fbf1c7 !important;
+    border: 2px solid #d79921 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.insight-icon {
+    background: #3c3836 !important;
+    border: 2px solid #665c54 !important;
+    border-radius: 0 !important;
+}
+
+div[data-baseweb="textarea"] {
+    background: #282828 !important;
+    border: 2px solid #665c54 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    transition: none !important;
+}
+
+div[data-baseweb="textarea"]:focus-within {
+    border-color: #fabd2f !important;
+    box-shadow: none !important;
+    outline: 2px solid #fabd2f !important;
+}
+
+div[data-baseweb="textarea"] textarea,
+[data-testid="stSidebar"] .stTextArea textarea {
+    background: transparent !important;
+    color: #ebdbb2 !important;
+    -webkit-text-fill-color: #ebdbb2 !important;
+}
+
+div[data-baseweb="textarea"] textarea::placeholder {
+    color: #a89984 !important;
+    -webkit-text-fill-color: #a89984 !important;
+}
+
+.stButton > button,
+.stDownloadButton > button {
+    border: 2px solid #665c54 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    transition: none !important;
+    transform: none !important;
+}
+
+.stButton > button[data-testid="stBaseButton-primary"] {
+    background: #fabd2f !important;
+    border-color: #d79921 !important;
+    color: #282828 !important;
+}
+
+.stButton > button[data-testid="stBaseButton-primary"] *,
+.stButton > button[kind="primary"] * {
+    color: #282828 !important;
+}
+
+.stButton > button[data-testid="stBaseButton-secondary"],
+.stDownloadButton > button {
+    background: #504945 !important;
+    color: #ebdbb2 !important;
+}
+
+.stButton > button[data-testid="stBaseButton-secondary"] *,
+.stDownloadButton > button * {
+    color: #ebdbb2 !important;
+}
+
+.stButton > button:hover,
+.stDownloadButton > button:hover {
+    filter: brightness(1.12);
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.stButton > button:focus-visible,
+.stDownloadButton > button:focus-visible {
+    outline: 2px solid #fabd2f !important;
+    outline-offset: 2px !important;
+}
+
+[data-testid="stSegmentedControl"] button {
+    background: #3c3836 !important;
+    border-radius: 0 !important;
+    color: #ebdbb2 !important;
+    box-shadow: none !important;
+}
+
+[data-testid="stSegmentedControl"] button[aria-pressed="true"] {
+    background: #665c54 !important;
+    color: #fabd2f !important;
+}
+
+[data-testid="stDataFrame"] * {
+    color: #ebdbb2 !important;
+}
+
+[data-testid="stAlert"] {
+    background: #3c3836 !important;
+    border: 2px solid #fb4934 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
 </style>
 """, unsafe_allow_html=True)
+
+glyph_svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="190" height="190" viewBox="0 0 190 190">
+<g fill="none" stroke="{theme_palette['glyph']}" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter" opacity=".06">
+<path d="M18 18h42v42H18z M28 31h22 M28 40h22 M28 49h22"/>
+<circle cx="34" cy="24" r="2" fill="{theme_palette['glyph']}"/><circle cx="44" cy="24" r="2" fill="{theme_palette['glyph']}"/>
+<path d="M111 20h42v42h-42z M121 31h22v20h-22z M121 57h22"/>
+<path d="M23 111h42v42H23z M34 132c0-11 20-11 20 0s-20 11-20 0z M42 128v8"/>
+<path d="M111 111h42v42h-42z M122 123h20 M132 123v20 M122 143h20"/>
+<circle cx="128" cy="132" r="2" fill="{theme_palette['glyph']}"/><circle cx="138" cy="132" r="2" fill="{theme_palette['glyph']}"/>
+</g></svg>"""
+glyph_pattern = quote(glyph_svg, safe="")
+st.markdown(
+    f"""
+<style>
+:root {{ color-scheme: {"dark" if dark_mode else "light"}; }}
+.main .block-container {{
+    max-width: 1680px !important;
+    padding: .8rem clamp(.75rem, 2vw, 1.6rem) 1.2rem !important;
+}}
+html, body {{
+    background-color: {theme_palette["background"]} !important;
+    color: {theme_palette["text"]} !important;
+}}
+.stApp {{
+    background: {theme_palette["background"]} !important;
+    background-image: url("data:image/svg+xml,{glyph_pattern}") !important;
+    background-attachment: fixed !important;
+    background-repeat: repeat !important;
+    background-size: 260px 260px !important;
+}}
+[data-testid="stAppViewContainer"] {{
+    background: transparent !important;
+    color: {theme_palette["text"]} !important;
+}}
+.stMarkdown, .stText, .stCaptionContainer, p, li, label,
+[data-testid="stCaptionContainer"] {{
+    color: {theme_palette["muted"]} !important;
+}}
+h1, h2, h3, h4, .hero-heading {{
+    color: {theme_palette["text"]} !important;
+}}
+.hero-heading span, .section-eyebrow {{
+    color: {theme_palette["accent"]} !important;
+}}
+.hero-copy, .glass-card, .glass-card p, .glass-card span {{
+    color: {theme_palette["muted"]} !important;
+}}
+.hero-kicker, .badge {{
+    background: {theme_palette["panel"]} !important;
+    color: {theme_palette["accent"]} !important;
+    border-color: {theme_palette["border"]} !important;
+}}
+.glass-card, [data-testid="stVerticalBlockBorderWrapper"],
+div[data-testid="stMetric"], [data-testid="stDataFrame"],
+.st-key-data-card, .st-key-chart-card-bars, .st-key-chart-card-proportion,
+.st-key-chart-card-histogram, .st-key-table-card, .st-key-summary-card {{
+    background: {theme_palette["panel"]} !important;
+    border-color: {theme_palette["border"]} !important;
+    border-width: 3px !important;
+}}
+[data-testid="stVerticalBlockBorderWrapper"],
+.st-key-data-card, .st-key-chart-card-bars, .st-key-chart-card-proportion,
+.st-key-chart-card-histogram, .st-key-table-card, .st-key-summary-card {{
+    padding: .7rem !important;
+}}
+.st-key-data-card [data-testid="stVerticalBlockBorderWrapper"] {{
+    border-color: {theme_palette["accent"]} !important;
+    border-width: 3px !important;
+}}
+.st-key-chart-card-bars [data-testid="stVerticalBlockBorderWrapper"],
+.st-key-chart-card-proportion [data-testid="stVerticalBlockBorderWrapper"],
+.st-key-chart-card-histogram [data-testid="stVerticalBlockBorderWrapper"] {{
+    transition: border-color 160ms ease, transform 160ms ease !important;
+}}
+.st-key-chart-card-bars [data-testid="stVerticalBlockBorderWrapper"]:hover,
+.st-key-chart-card-proportion [data-testid="stVerticalBlockBorderWrapper"]:hover,
+.st-key-chart-card-histogram [data-testid="stVerticalBlockBorderWrapper"]:hover {{
+    border-color: {theme_palette["accent"]} !important;
+    transform: translateY(-2px) !important;
+}}
+.st-key-table-card [data-testid="stDataFrame"] {{
+    max-height: none !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    border-width: 3px !important;
+}}
+.st-key-table-card [data-testid="stDataFrameResizable"] {{
+    max-width: 100% !important;
+    min-width: 0 !important;
+}}
+div[data-testid="stMetric"] {{
+    padding: .5rem .65rem !important;
+}}
+div[data-testid="stMetricLabel"] {{
+    color: {theme_palette["muted"]} !important;
+}}
+div[data-testid="stMetricValue"] {{
+    color: {theme_palette["accent"]} !important;
+    font-size: 1.7rem !important;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace !important;
+    font-variant-numeric: tabular-nums;
+}}
+div[data-testid="stMetricValue"] * {{
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace !important;
+    font-variant-numeric: tabular-nums;
+}}
+.numeric-value {{
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace !important;
+    font-variant-numeric: tabular-nums;
+}}
+.hero-kicker {{
+    padding: .3rem .6rem !important;
+}}
+.hero-heading {{
+    margin: .35rem 0 !important;
+    font-size: clamp(1.8rem, 2.8vw, 2.5rem) !important;
+}}
+.hero-copy {{
+    margin: .25rem 0 .5rem !important;
+}}
+.insight-strip {{
+    background: {theme_palette["secondary"]} !important;
+    color: {theme_palette["text"]} !important;
+    border-color: {theme_palette["accent"]} !important;
+    margin: .3rem 0 .65rem !important;
+    padding: .5rem .75rem !important;
+}}
+.insight-icon {{
+    background: {theme_palette["panel"]} !important;
+    border-color: {theme_palette["border"]} !important;
+}}
+div[data-baseweb="textarea"] {{
+    background: {theme_palette["background"]} !important;
+    border-color: {theme_palette["border"]} !important;
+}}
+div[data-baseweb="textarea"]:focus-within {{
+    border-color: {theme_palette["accent"]} !important;
+    outline-color: {theme_palette["accent"]} !important;
+}}
+div[data-baseweb="textarea"] textarea,
+[data-testid="stSidebar"] .stTextArea textarea {{
+    color: {theme_palette["text"]} !important;
+    -webkit-text-fill-color: {theme_palette["text"]} !important;
+}}
+div[data-baseweb="textarea"] textarea::placeholder {{
+    color: {theme_palette["muted"]} !important;
+    -webkit-text-fill-color: {theme_palette["muted"]} !important;
+}}
+.st-key-raw_values [data-testid="stTextAreaRootElement"] {{
+    background: {theme_palette["background"]} !important;
+    border: 2px solid {theme_palette["border"]} !important;
+    border-radius: 0 !important;
+    transition: border-color 140ms steps(3, end) !important;
+}}
+.st-key-raw_values:focus-within [data-testid="stTextAreaRootElement"] {{
+    border-color: {theme_palette["accent"]} !important;
+}}
+.st-key-raw_values textarea {{
+    background: transparent !important;
+    color: {theme_palette["text"]} !important;
+    -webkit-text-fill-color: {theme_palette["text"]} !important;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace !important;
+    font-variant-numeric: tabular-nums;
+}}
+.st-key-raw_values textarea::placeholder {{
+    color: {theme_palette["muted"]} !important;
+    -webkit-text-fill-color: {theme_palette["muted"]} !important;
+}}
+.stButton > button[data-testid="stBaseButton-primary"] {{
+    background: {theme_palette["accent"]} !important;
+    border-color: {theme_palette["accent"]} !important;
+    color: {theme_palette["button_text"]} !important;
+}}
+.stButton > button[data-testid="stBaseButton-primary"] *,
+.stButton > button[kind="primary"] * {{
+    color: {theme_palette["button_text"]} !important;
+}}
+.stButton > button[data-testid="stBaseButton-secondary"],
+.stDownloadButton > button {{
+    background: {theme_palette["secondary"]} !important;
+    color: {theme_palette["text"]} !important;
+}}
+.stButton > button[data-testid="stBaseButton-secondary"] *,
+.stDownloadButton > button * {{
+    color: {theme_palette["text"]} !important;
+}}
+.stButton > button[data-testid="stBaseButton-tertiary"],
+.stButton > button[data-testid="stBaseButton-tertiary"] * {{
+    color: {theme_palette["text"]} !important;
+}}
+.stButton > button:focus-visible, .stDownloadButton > button:focus-visible {{
+    outline-color: {theme_palette["accent"]} !important;
+}}
+[data-testid="stSegmentedControl"] button {{
+    background: {theme_palette["panel"]} !important;
+    color: {theme_palette["text"]} !important;
+}}
+[data-testid="stSegmentedControl"] button[aria-pressed="true"] {{
+    background: {theme_palette["accent"]} !important;
+    color: {theme_palette["button_text"]} !important;
+}}
+[data-testid="stDataFrame"] * {{
+    color: {theme_palette["text"]} !important;
+}}
+[data-testid="stAlert"] {{
+    background: {theme_palette["panel"]} !important;
+    color: {theme_palette["text"]} !important;
+}}
+.st-key-theme-dark-mode label {{
+    color: {theme_palette["text"]} !important;
+}}
+.stButton > button, .stDownloadButton > button,
+div[data-baseweb="textarea"], [data-testid="stSegmentedControl"] button {{
+    transition: background-color 140ms steps(3, end), color 140ms steps(3, end),
+        border-color 140ms steps(3, end), filter 140ms steps(3, end) !important;
+}}
+@media (prefers-reduced-motion: reduce) {{
+    .stButton > button, .stDownloadButton > button,
+    div[data-baseweb="textarea"], [data-testid="stSegmentedControl"] button {{
+        transition-duration: .01ms !important;
+    }}
+}}
+</style>
+""",
+    unsafe_allow_html=True,
+)
 
 # ------------------------ FUNCIONES ---------------------------
 def parse_numbers(raw: str) -> list[float]:
@@ -754,9 +1408,23 @@ def frequency_distribution(values: list[float]):
     }
 
 # -------------------- GRÁFICOS --------------------
-CHART_COLORS = ["#A982E8", "#57BFAF", "#F28FB3", "#F1B84B", "#729BE8", "#79C98A", "#EB8D70", "#62BFD0"]
+CHART_COLORS = ["#b8bb26", "#83a598", "#fb4934", "#fabd2f", "#d3869b", "#8ec07c", "#fe8019", "#a89984"]
+TABLE_GRADIENTS = {
+    "absolute_frequency": LinearSegmentedColormap.from_list("gruvbox_green", ["#3c3836", "#625c24", "#98971a"]),
+    "class_mark": LinearSegmentedColormap.from_list("gruvbox_blue", ["#3c3836", "#3c5555", "#458588"]),
+    "cumulative_frequency": LinearSegmentedColormap.from_list("gruvbox_yellow", ["#3c3836", "#66542a", "#d79921"]),
+    "relative_frequency": LinearSegmentedColormap.from_list("gruvbox_aqua", ["#3c3836", "#455b3d", "#689d6a"]),
+    "percentage": LinearSegmentedColormap.from_list("gruvbox_orange", ["#3c3836", "#704623", "#d65d0e"]),
+}
+TABLE_GRADIENTS_LIGHT = {
+    "absolute_frequency": LinearSegmentedColormap.from_list("gruvbox_light_green", ["#fbf1c7", "#e7d895", "#c5c761"]),
+    "class_mark": LinearSegmentedColormap.from_list("gruvbox_light_blue", ["#fbf1c7", "#c8d8c8", "#a9c5b7"]),
+    "cumulative_frequency": LinearSegmentedColormap.from_list("gruvbox_light_yellow", ["#fbf1c7", "#f0d48b", "#e3b75b"]),
+    "relative_frequency": LinearSegmentedColormap.from_list("gruvbox_light_aqua", ["#fbf1c7", "#c8d7a8", "#a9c486"]),
+    "percentage": LinearSegmentedColormap.from_list("gruvbox_light_orange", ["#fbf1c7", "#f3c08b", "#e6a16c"]),
+}
 
-def chart_option(result: dict, chart_kind: str) -> dict:
+def chart_option(result: dict, chart_kind: str, palette: dict[str, str]) -> dict:
     table = result["table"]
     intervals = table["Intervalo"].tolist()
     frequencies = [int(value) for value in table["Frecuencia absoluta (fi)"]]
@@ -764,13 +1432,22 @@ def chart_option(result: dict, chart_kind: str) -> dict:
 
     base = {
         "animation": True,
-        "animationDuration": 950,
-        "animationDurationUpdate": 700,
-        "animationEasing": "elasticOut",
+        "animationDuration": 650,
+        "animationDurationUpdate": 400,
+        "animationEasing": "cubicOut",
         "animationEasingUpdate": "cubicOut",
         "color": colors,
         "backgroundColor": "transparent",
-        "tooltip": {"trigger": "axis", "backgroundColor": "#fffaff", "borderColor": "#e6d9f3", "textStyle": {"color": "#3e3550"}},
+        "textStyle": {
+            "fontFamily": 'ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace',
+            "fontSize": 13,
+        },
+        "tooltip": {
+            "trigger": "axis",
+            "backgroundColor": palette["panel"],
+            "borderColor": palette["border"],
+            "textStyle": {"color": palette["text"]},
+        },
         "grid": {"left": 38, "right": 22, "top": 30, "bottom": 62, "containLabel": True},
     }
 
@@ -779,76 +1456,15 @@ def chart_option(result: dict, chart_kind: str) -> dict:
             "xAxis": {
                 "type": "category",
                 "data": intervals,
-                "axisLabel": {"color": "#645773", "rotate": 18, "fontSize": 11},
-                "axisLine": {"lineStyle": {"color": "#d9cfe5"}},
+                "axisLabel": {"color": palette["muted"], "rotate": 18, "fontSize": 12},
+                "axisLine": {"lineStyle": {"color": palette["border"]}},
                 "axisTick": {"show": False},
             },
             "yAxis": {
                 "type": "value",
                 "minInterval": 1,
-                "axisLabel": {"color": "#776b86"},
-                "splitLine": {"lineStyle": {"color": "rgba(151, 129, 178, .16)", "type": "dashed"}},
-            },
-            "series": [{
-                "name": "Frecuencia",
-                "type": "bar",
-                "data": [
-                    {"value": value, "itemStyle": {"color": colors[index], "borderRadius": [10, 10, 3, 3]}}
-                    for index, value in enumerate(frequencies)
-                ],
-                "barMaxWidth": 48,
-                "showBackground": True,
-                "backgroundStyle": {"color": "rgba(177, 158, 200, .08)", "borderRadius": [10, 10, 3, 3]},
-                "label": {"show": True, "position": "top", "color": "#59496b", "fontWeight": 700},
-                "emphasis": {"focus": "self", "itemStyle": {"shadowBlur": 16, "shadowColor": "rgba(88, 63, 128, .22)"}},
-                "universalTransition": True,
-            }],
-        })
-    elif chart_kind == "Proporción":
-        base.update({
-            "tooltip": {"trigger": "item", "backgroundColor": "#fffaff", "borderColor": "#e6d9f3", "textStyle": {"color": "#3e3550"}, "valueFormatter": "localized"},
-            "legend": {"type": "scroll", "bottom": 2, "textStyle": {"color": "#645773"}},
-            "title": {
-                "text": str(result["n"]),
-                "subtext": "datos",
-                "left": "center",
-                "top": "middle",
-                "textStyle": {"fontSize": 28, "fontWeight": 800, "color": "#433553"},
-                "subtextStyle": {"fontSize": 12, "color": "#857895"},
-            },
-            "series": [{
-                "name": "Frecuencia",
-                "type": "pie",
-                "radius": ["48%", "72%"],
-                "center": ["50%", "46%"],
-                "startAngle": 90,
-                "avoidLabelOverlap": True,
-                "itemStyle": {"borderColor": "#fffaff", "borderWidth": 4, "borderRadius": 8},
-                "label": {"color": "#544564", "formatter": "{b}\\n{d}%", "fontWeight": 600},
-                "labelLine": {"lineStyle": {"color": "#b6a4c9"}},
-                "emphasis": {"scale": True, "scaleSize": 10, "itemStyle": {"shadowBlur": 18, "shadowColor": "rgba(88, 63, 128, .24)"}},
-                "data": [
-                    {"name": label, "value": value, "itemStyle": {"color": colors[index]}}
-                    for index, (label, value) in enumerate(zip(intervals, frequencies))
-                ],
-                "universalTransition": True,
-            }],
-        })
-    else:
-        base.update({
-            "xAxis": {
-                "type": "category",
-                "data": intervals,
-                "axisLabel": {"color": "#645773", "rotate": 18, "fontSize": 11, "interval": 0},
-                "axisLine": {"lineStyle": {"color": "#d9cfe5"}},
-                "axisTick": {"show": False},
-            },
-            "yAxis": {
-                "type": "value",
-                "min": 0,
-                "minInterval": 1,
-                "axisLabel": {"color": "#776b86"},
-                "splitLine": {"lineStyle": {"color": "rgba(151, 129, 178, .16)", "type": "dashed"}},
+                "axisLabel": {"color": palette["muted"]},
+                "splitLine": {"lineStyle": {"color": palette["grid"], "type": "dashed"}},
             },
             "series": [{
                 "name": "Frecuencia",
@@ -857,14 +1473,111 @@ def chart_option(result: dict, chart_kind: str) -> dict:
                     {"value": value, "itemStyle": {"color": colors[index]}}
                     for index, value in enumerate(frequencies)
                 ],
-                "barWidth": "100%",
-                "barCategoryGap": "0%",
-                "barGap": "0%",
-                "itemStyle": {"borderColor": "#fffaff", "borderWidth": 1},
-                "label": {"show": True, "position": "top", "color": "#59496b", "fontWeight": 700},
-                "emphasis": {"focus": "self", "itemStyle": {"shadowBlur": 16, "shadowColor": "rgba(88, 63, 128, .22)"}},
-                "universalTransition": True,
+                "barMaxWidth": 48,
+                "label": {"show": True, "position": "top", "color": palette["text"], "fontWeight": 700},
+                "emphasis": {"focus": "self"},
             }],
+        })
+    elif chart_kind == "Circular":
+        base.update({
+            "tooltip": {
+                "trigger": "item",
+                "backgroundColor": palette["panel"],
+                "borderColor": palette["border"],
+                "textStyle": {"color": palette["text"]},
+                "valueFormatter": "localized",
+            },
+            "legend": {
+                "type": "scroll",
+                "orient": "vertical",
+                "right": 0,
+                "top": "middle",
+                "itemWidth": 10,
+                "itemHeight": 10,
+                "textStyle": {"color": palette["muted"], "fontSize": 12},
+            },
+            "title": {
+                "text": str(result["n"]),
+                "subtext": "datos",
+                "left": "35%",
+                "top": "middle",
+                "textStyle": {"fontSize": 28, "fontWeight": 800, "color": palette["accent"]},
+                "subtextStyle": {"fontSize": 12, "color": palette["muted"]},
+            },
+            "series": [{
+                "name": "Frecuencia",
+                "type": "pie",
+                "radius": ["40%", "54%"],
+                "center": ["35%", "50%"],
+                "startAngle": 90,
+                "avoidLabelOverlap": True,
+                "itemStyle": {"borderColor": palette["panel"], "borderWidth": 2},
+                "label": {"show": False},
+                "labelLine": {"show": False},
+                "emphasis": {"scale": True, "scaleSize": 5},
+                "data": [
+                    {"name": label, "value": value, "itemStyle": {"color": colors[index]}}
+                    for index, (label, value) in enumerate(zip(intervals, frequencies))
+                ],
+            }],
+        })
+    else:
+        base.update({
+            "xAxis": {
+                "type": "category",
+                "data": intervals,
+                "axisLabel": {"color": palette["muted"], "rotate": 18, "fontSize": 12, "interval": 0},
+                "axisLine": {"lineStyle": {"color": palette["border"]}},
+                "axisTick": {"show": False},
+            },
+            "yAxis": {
+                "type": "value",
+                "min": 0,
+                "minInterval": 1,
+                "axisLabel": {"color": palette["muted"]},
+                "splitLine": {"lineStyle": {"color": palette["grid"], "type": "dashed"}},
+            },
+            "series": [
+                {
+                    "name": "Frecuencia",
+                    "type": "bar",
+                    "data": [
+                        {"value": value, "itemStyle": {"color": colors[index]}}
+                        for index, value in enumerate(frequencies)
+                    ],
+                    "barWidth": "100%",
+                    "barCategoryGap": "0%",
+                    "barGap": "0%",
+                    "itemStyle": {"borderColor": palette["panel"], "borderWidth": 1},
+                    "label": {"show": True, "position": "top", "color": palette["text"], "fontWeight": 700},
+                    "emphasis": {"focus": "self"},
+                },
+                {
+                    "name": "Polígono de frecuencias",
+                    "type": "line",
+                    "data": frequencies,
+                    "symbol": "circle",
+                    "symbolSize": 8,
+                    "lineStyle": {"color": palette["text"], "width": 3},
+                    "itemStyle": {
+                        "color": palette["text"],
+                        "borderColor": palette["panel"],
+                        "borderWidth": 2,
+                    },
+                    "z": 10,
+                    "markPoint": {
+                        "symbol": "circle",
+                        "symbolSize": 16,
+                        "itemStyle": {
+                            "color": palette["accent"],
+                            "borderColor": palette["panel"],
+                            "borderWidth": 3,
+                        },
+                        "label": {"show": False},
+                        "data": [{"type": "max", "name": "Frecuencia máxima"}],
+                    },
+                },
+            ],
         })
 
     return base
@@ -885,48 +1598,45 @@ if "raw_values" not in st.session_state:
     st.session_state.raw_values = ""
 
 result = st.session_state.get("analysis_result")
-intro, entry = st.columns([0.9, 1.1], gap="large", vertical_alignment="center")
+brand_column, theme_column = st.columns([1, 0.24], gap="medium", vertical_alignment="center")
+with brand_column:
+    st.image(
+        DARK_LOGO_PATH if dark_mode else LIGHT_LOGO_PATH,
+        width=320,
+        alt="Quantyx 86: El lenguaje de los datos",
+    )
+with theme_column:
+    dark_mode = st.toggle(
+        "Modo oscuro",
+        value=dark_mode,
+        key="theme-dark-mode",
+        help="Cambia entre las paletas Gruvbox clara y oscura.",
+    )
 
-with intro:
-    heading_class = "hero-compact" if result is not None else ""
-    heading = "Ajilanem"
-    copy = (
-        "Pega una lista de números y descubre su distribución en una tabla y gráficos fáciles de leer."
-        if result is None
-        else f"Resumen de {result['n']} datos. Edita la lista cuando quieras actualizar el análisis."
-    )
-    st.markdown(
-        '<div class="hero-kicker">◈ &nbsp; ESTADÍSTICA, SIN COMPLICACIONES</div>',
-        unsafe_allow_html=True,
-    )
-    brand_mark, brand_name = st.columns([0.13, 1], gap="small", vertical_alignment="center")
-    with brand_mark:
-        st.image(LOGO_PATH, width=68, alt="Emblema inspirado en el cero maya")
-    with brand_name:
-        st.markdown(
-            f'<div class="{heading_class}"><h1 class="hero-heading">{heading}</h1></div>',
-            unsafe_allow_html=True,
-        )
-    st.markdown(f'<p class="hero-copy">{copy}</p>', unsafe_allow_html=True)
-with entry:
-    with st.container(border=True, key="data-card"):
-        st.markdown('<div class="section-eyebrow">Conjunto de datos</div>', unsafe_allow_html=True)
-        st.caption("Escribe o pega tantos valores numéricos como necesites; se rechaza cualquier dato no numérico.")
+with st.container(border=True, key="data-card"):
+    prompt_column, input_column = st.columns([1.08, 1.92], gap="large", vertical_alignment="center")
+    with prompt_column:
+        st.markdown('<div class="section-eyebrow">01 &nbsp; / &nbsp; TU CONJUNTO</div>', unsafe_allow_html=True)
+        st.subheader("Tus datos, en claro")
+        st.caption("Pégalos separados por comas, espacios o saltos de línea.")
+    with input_column:
         raw = st.text_area(
             "Conjunto de datos",
             key="raw_values",
-            height=86,
+            height=82,
             help="Separa los valores con comas, espacios, punto y coma o saltos de línea.",
             placeholder="Por ejemplo: 12, 15, 18, 22, 25",
             label_visibility="collapsed",
         )
-        action, reset = st.columns([1.15, 1])
+        action, reset = st.columns([1.15, 1], gap="small")
         with action:
-            run = st.button("Actualizar análisis  →" if result is not None else "Ver mi análisis  →", type="primary", width="stretch")
+            run = st.button(
+                "Actualizar análisis  →" if result is not None else "Calcular  →",
+                type="primary",
+                width="stretch",
+            )
         with reset:
             st.button("Cargar ejemplo", type="secondary", width="stretch", on_click=restore_example)
-        if result is not None:
-            st.button("Limpiar", type="tertiary", width="content", on_click=clear_data)
 
 if run:
     try:
@@ -943,102 +1653,155 @@ if error:
     st.error(f"Revisa tus datos: {error}")
 
 if result is not None:
-    st.markdown('<div class="section-eyebrow" style="margin:.4rem 0">RESUMEN &nbsp; / &nbsp; DISTRIBUCIÓN</div>', unsafe_allow_html=True)
+    title_column, clear_column = st.columns([1, 0.22], gap="medium", vertical_alignment="center")
+    with title_column:
+        st.subheader("Resultados", icon=":material/analytics:")
+        st.caption(
+            f"{result['n']} datos · {result['k']} intervalos · amplitud {result['width']:.2f}"
+        )
+    with clear_column:
+        st.button("Limpiar", type="tertiary", width="stretch", on_click=clear_data)
 
-    metrics = st.columns(4)
-    for column, label, value in zip(
-        metrics,
-        ("Datos", "Mínimo", "Máximo", "Rango"),
-        (f"{result['n']}", f"{result['min']:,.2f}", f"{result['max']:,.2f}", f"{result['range']:,.2f}"),
-    ):
-        column.metric(label, value)
+    chart_cards = (
+        ("bars", ":material/bar_chart:", "Barras", "Barras", "Frecuencia absoluta de cada intervalo."),
+        ("proportion", ":material/pie_chart:", "Circular", "Circular", "Proporción de los datos por intervalo."),
+        (
+            "histogram",
+            ":material/analytics:",
+            "Histograma",
+            "Histograma",
+            "La línea une las frecuencias por intervalo y señala el máximo.",
+        ),
+    )
+    chart_grid = st.grid("auto", min_column_width=320, gap="medium")
+    for chart_id, icon, title, chart_kind, description in chart_cards:
+        with chart_grid.cell():
+            with st.container(border=True, key=f"chart-card-{chart_id}"):
+                st.markdown(f"#### {icon} {title}")
+                st.echarts_chart(
+                    chart_option(result, chart_kind, theme_palette),
+                    height=245,
+                    key=f"frequency-chart-{chart_id}",
+                    alt=description,
+                )
 
     if result["mode_count"] > 1:
         insight = (
-            f"El valor <strong>{result['mode']:g}</strong> es el más repetido "
-            f"({result['mode_count']} veces). La mediana es <strong>{result['median']:,.2f}</strong>."
+            f"El valor <strong class=\"numeric-value\">{result['mode']:g}</strong> es el más repetido "
+            f"(<span class=\"numeric-value\">{result['mode_count']}</span> veces). "
+            f"La mediana es <strong class=\"numeric-value\">{result['median']:,.2f}</strong>."
         )
     else:
         insight = (
             f"No hay valores repetidos: cada dato es único. "
-            f"El promedio es <strong>{result['mean']:,.2f}</strong>."
+            f"El promedio es <strong class=\"numeric-value\">{result['mean']:,.2f}</strong>."
         )
-    st.markdown(
-        f'<div class="insight-strip"><span class="insight-icon">💡</span><span><strong>Un dato curioso:</strong> {insight}</span></div>',
-        unsafe_allow_html=True,
-    )
-
-    chart_column, table_column = st.columns([1.1, 1], gap="medium")
-    with chart_column:
-        with st.container(border=True, key="chart-card"):
-            st.markdown("### Gráficos")
-            st.caption(f"{result['k']} intervalos · amplitud {result['width']:.2f}")
-            chart_kind = st.segmented_control(
-                "Tipo de gráfico",
-                options=["Barras", "Proporción", "Histograma"],
-                default="Barras",
-                key="chart-kind-v2",
-                label_visibility="collapsed",
-                width="stretch",
-            )
-            st.echarts_chart(
-                chart_option(result, chart_kind or "Barras"),
-                height=340,
-                key="frequency-chart",
-                alt=f"Frecuencias de datos agrupados en intervalos ({chart_kind or 'Barras'})",
-            )
-
-    with table_column:
+    bottom_grid = st.grid("auto", min_column_width=500, gap="medium")
+    with bottom_grid.cell():
         with st.container(border=True, key="table-card"):
-            st.markdown("### Tabla de frecuencias")
-            st.caption("Guarda o comparte tus resultados.")
+            st.markdown('<div class="section-eyebrow">03 &nbsp; / &nbsp; DATOS DETALLADOS</div>', unsafe_allow_html=True)
+            st.subheader("Tabla de frecuencias", icon=":material/table_chart:")
+            st.caption("Xi: marca · fi: absoluta · Fi: acumulada · hi: relativa")
             display_df = result["table"].copy()
+            table_gradients = TABLE_GRADIENTS if dark_mode else TABLE_GRADIENTS_LIGHT
             styled_df = (
                 display_df.style
-                .format({
-                    "Marca de clase (Xi)": "{:.2f}",
-                    "Frecuencia absoluta (fi)": "{:,.0f}",
-                    "Frecuencia acumulada (Fi)": "{:,.0f}",
-                    "Frecuencia relativa (hi)": "{:.4f}",
-                    "Porcentaje (%)": "{:.2f}%",
-                })
-                .background_gradient(cmap="Purples", subset=["Frecuencia absoluta (fi)"])
-                .background_gradient(cmap="YlGnBu", subset=["Marca de clase (Xi)"])
-                .background_gradient(cmap="YlOrBr", subset=["Frecuencia acumulada (Fi)"])
-                .background_gradient(cmap="BuGn", subset=["Frecuencia relativa (hi)"])
-                .background_gradient(cmap="PuRd", subset=["Porcentaje (%)"])
+                .background_gradient(cmap=table_gradients["absolute_frequency"], subset=["Frecuencia absoluta (fi)"])
+                .background_gradient(cmap=table_gradients["class_mark"], subset=["Marca de clase (Xi)"])
+                .background_gradient(cmap=table_gradients["cumulative_frequency"], subset=["Frecuencia acumulada (Fi)"])
+                .background_gradient(cmap=table_gradients["relative_frequency"], subset=["Frecuencia relativa (hi)"])
+                .background_gradient(cmap=table_gradients["percentage"], subset=["Porcentaje (%)"])
                 .set_table_styles([
                     {
                         "selector": "th",
                         "props": [
-                            ("background-color", "#e7d9f6"),
-                            ("color", "#433553"),
+                            ("background-color", theme_palette["secondary"]),
+                            ("color", theme_palette["accent"]),
                             ("font-weight", "700"),
-                            ("border-bottom", "2px solid #c9b3e1"),
+                            ("border-bottom", f"2px solid {theme_palette['border']}"),
                         ],
                     },
                     {
                         "selector": "tbody tr:nth-child(even) td",
-                        "props": [("background-color", "rgba(246, 241, 252, .82)")],
+                        "props": [("background-color", theme_palette["table_alt"])],
                     },
                     {
                         "selector": "tbody tr:hover td",
-                        "props": [("filter", "brightness(.96)")],
+                        "props": [("filter", "brightness(1.16)")],
                     },
                 ])
+                .set_properties(**{"color": theme_palette["text"], "border-color": theme_palette["border"]})
+                .set_properties(
+                    subset=["Intervalo"],
+                    **{"background-color": theme_palette["panel"]},
+                )
             )
             st.dataframe(
                 styled_df,
                 width="stretch",
                 hide_index=True,
-                height=250,
+                height="content",
+                row_height=32,
+                column_config={
+                    "Intervalo": st.column_config.TextColumn(
+                        "Intervalo",
+                        width=110,
+                        help="Rango de valores que define el grupo.",
+                    ),
+                    "Marca de clase (Xi)": st.column_config.NumberColumn(
+                        "Xi",
+                        width=70,
+                        format="%.2f",
+                        help="Punto medio del intervalo.",
+                    ),
+                    "Frecuencia absoluta (fi)": st.column_config.NumberColumn(
+                        "fi",
+                        width=60,
+                        format="%d",
+                        help="Cantidad de datos en el intervalo.",
+                    ),
+                    "Frecuencia acumulada (Fi)": st.column_config.NumberColumn(
+                        "Fi",
+                        width=60,
+                        format="%d",
+                        help="Suma acumulada de las frecuencias.",
+                    ),
+                    "Frecuencia relativa (hi)": st.column_config.NumberColumn(
+                        "hi",
+                        width=70,
+                        format="%.4f",
+                        help="Proporción de datos en el intervalo.",
+                    ),
+                    "Porcentaje (%)": st.column_config.NumberColumn(
+                        "%",
+                        width=65,
+                        format="%.2f%%",
+                        help="Frecuencia relativa expresada como porcentaje.",
+                    ),
+                },
                 alt="Tabla colorida con intervalos y frecuencias estadísticas",
             )
             csv = display_df.to_csv(index=False).encode("utf-8-sig")
             st.download_button(
                 "Descargar CSV",
                 data=csv,
-                file_name="statia_datos.csv",
+                file_name="quantyx_86_datos.csv",
                 mime="text/csv",
                 width="stretch",
+            )
+
+    with bottom_grid.cell():
+        with st.container(border=True, key="summary-card"):
+            st.markdown('<div class="section-eyebrow">04 &nbsp; / &nbsp; RESUMEN</div>', unsafe_allow_html=True)
+            st.subheader("En pocas cifras", icon=":material/insights:")
+            summary_grid = st.grid(2, min_column_width=140, gap="small")
+            for label, value in zip(
+                ("Datos", "Mínimo", "Máximo", "Rango"),
+                (f"{result['n']}", f"{result['min']:,.2f}", f"{result['max']:,.2f}", f"{result['range']:,.2f}"),
+            ):
+                summary_grid.metric(label, value, border=True)
+            st.markdown(
+                f'<div class="insight-strip"><span class="insight-icon">💡</span>'
+                f'<span><strong>Un dato curioso:</strong> {insight}</span></div>',
+                unsafe_allow_html=True,
             )
