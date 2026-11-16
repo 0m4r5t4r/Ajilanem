@@ -1857,6 +1857,135 @@ def chart_option(result: dict, chart_kind: str, palette: dict[str, str]) -> dict
 
     return base
 
+def render_result_explanation(result: dict) -> None:
+    data = np.asarray(result["data"], dtype=float)
+    n = result["n"]
+    minimum = result["min"]
+    maximum = result["max"]
+    data_range = result["range"]
+    sturges_k = max(1, int(round(1 + 3.322 * math.log10(n))))
+    max_index = int(np.argmax(result["fi"]))
+    max_interval = result["table"].iloc[max_index]["Intervalo"]
+    max_frequency = int(result["fi"][max_index])
+    sorted_data = np.sort(data)
+    data_sum = float(np.sum(data))
+
+    st.markdown("### ¡Hola! Soy tu guía de Quantyx 86 🤖")
+    st.write(
+        f"Analicé **{n} datos**, desde **{minimum:g}** hasta **{maximum:g}**. "
+        f"El intervalo **{max_interval}** reúne la mayor frecuencia: "
+        f"**{max_frequency} datos**."
+    )
+
+    st.markdown("#### 1. Rango y número de intervalos")
+    st.latex(
+        fr"R = x_{{\max}} - x_{{\min}} = {maximum:g} - {minimum:g} = {data_range:g}"
+    )
+    st.latex(
+        fr"k_0 = \operatorname{{round}}\left(1 + 3.322\log_{{10}}({n})\right)"
+        fr" = {sturges_k}"
+    )
+    if data_range == 0:
+        st.write(
+            f"Como todos los datos tienen el mismo valor, se usa un intervalo "
+            f"con amplitud {result['width']:g}."
+        )
+    elif result["integer_data"]:
+        integer_span = int(round(data_range)) + 1
+        base_classes = min(sturges_k, integer_span)
+        st.latex(
+            fr"A = \left\lceil \frac{{R + 1}}{{\min(k_0, R + 1)}} \right\rceil"
+            fr" = \left\lceil \frac{{{integer_span}}}{{{base_classes}}} \right\rceil"
+            fr" = {result['width']:g}"
+        )
+        st.write(
+            f"La aplicación los agrupa en **{result['k']} intervalos** "
+            "y presenta los límites enteros de forma inclusiva."
+        )
+    else:
+        raw_width = data_range / sturges_k
+        st.latex(
+            fr"A \approx \frac{{R}}{{k_0}} = \frac{{{data_range:g}}}{{{sturges_k}}}"
+            fr" \approx {raw_width:.4f}"
+        )
+        st.write(
+            f"Con el redondeo de amplitud para datos decimales, se usa "
+            f"**{result['width']:.2f}** en **{result['k']} intervalos**."
+        )
+
+    st.markdown("#### 2. Cómo leer la tabla")
+    st.latex(
+        r"f_i = \sum_{j=1}^{n}\mathbf{1}(x_j \in I_i), \qquad "
+        r"X_i = \frac{L_i + U_i}{2}"
+    )
+    st.latex(
+        r"F_i = \sum_{j=1}^{i} f_j, \qquad "
+        r"h_i = \frac{f_i}{n}, \qquad "
+        r"\% = 100h_i"
+    )
+    st.write(
+        "**Xi** es el punto medio del intervalo; **fi**, cuántos datos contiene; "
+        "**Fi**, el total acumulado; y **hi** y **%**, su proporción y porcentaje."
+    )
+    max_percentage = float(result["table"].iloc[max_index]["Porcentaje (%)"])
+    st.write(
+        f"Por eso, el intervalo **{max_interval}** concentra "
+        f"**{max_percentage:.2f}%** de los datos. En el histograma, la línea "
+        "conecta las frecuencias y el punto resaltado marca el máximo."
+    )
+
+    st.markdown("#### 3. Medidas del conjunto original")
+    st.latex(
+        fr"\bar{{x}} = \frac{{\sum x_i}}{{n}} = "
+        fr"\frac{{{data_sum:.2f}}}{{{n}}} = {result['mean']:.2f}"
+    )
+    if n % 2:
+        middle_position = n // 2 + 1
+        median_value = sorted_data[n // 2]
+        st.latex(
+            fr"Me = x_{{({n}+1)/2}} = x_{{{middle_position}}}"
+            fr" = {median_value:g} = {result['median']:.2f}"
+        )
+        st.write("La mediana es el valor que queda en el centro al ordenar los datos.")
+    else:
+        lower_middle = sorted_data[n // 2 - 1]
+        upper_middle = sorted_data[n // 2]
+        st.latex(
+            fr"Me = \frac{{x_{{n/2}} + x_{{n/2+1}}}}{{2}} = "
+            fr"\frac{{{lower_middle:g} + {upper_middle:g}}}{{2}}"
+            fr" = {result['median']:.2f}"
+        )
+        st.write("Como hay una cantidad par de datos, se promedian los dos valores centrales.")
+
+    squared_deviation_sum = float(np.sum((data - result["mean"]) ** 2))
+    st.latex(
+        fr"\sigma = \sqrt{{\frac{{\sum (x_i-\bar{{x}})^2}}{{n}}}} = "
+        fr"\sqrt{{\frac{{{squared_deviation_sum:.2f}}}{{{n}}}}}"
+        fr" = {result['std_dev']:.2f}"
+    )
+    st.write(
+        "Esta desviación estándar es **poblacional**: el cálculo divide entre "
+        "el número total de datos, n."
+    )
+
+    st.latex(r"Mo = \operatorname*{arg\,max}_{x} f(x)")
+    if result["mode_count"] > 1:
+        unique_values, value_counts = np.unique(data, return_counts=True)
+        modes = unique_values[value_counts == np.max(value_counts)]
+        if len(modes) > 1:
+            mode_labels = ", ".join(f"{value:g}" for value in modes)
+            st.write(
+                f"Hay empate en la moda entre **{mode_labels}**; el resumen "
+                f"muestra **{result['mode']:g}**."
+            )
+        else:
+            st.write(
+                f"La moda es **{result['mode']:g}**, el valor que más se repite "
+                f"(**{result['mode_count']} veces**)."
+            )
+    else:
+        st.write("No hay valores repetidos, por eso el resumen indica **Sin moda**.")
+
 EXAMPLE_DATASETS = {
     "Edades": [18, 19, 19, 20, 20, 21, 21, 21, 22, 22, 23, 23, 24, 24, 25, 26, 27, 28, 30, 32],
     "Notas o calificaciones": [5.5, 6.0, 6.2, 6.5, 6.8, 7.0, 7.1, 7.2, 7.5, 7.5, 7.8, 8.0, 8.2, 8.4, 8.5, 8.7, 9.0, 9.2, 9.5, 10.0],
@@ -2050,7 +2179,21 @@ if result is not None:
     title_column, clear_column = st.columns([1, 0.22], gap="medium", vertical_alignment="center")
     width_label = f"{result['width']:g}" if result["integer_data"] else f"{result['width']:.2f}"
     with title_column:
-        st.subheader("Resultados", icon=":material/analytics:")
+        heading_column, explanation_column = st.columns(
+            [3, 1],
+            gap="small",
+            vertical_alignment="center",
+        )
+        with heading_column:
+            st.subheader("Resultados", icon=":material/analytics:")
+        with explanation_column:
+            with st.popover(
+                "Explícame",
+                icon="🤖",
+                help="La mascotita explica el procedimiento, las fórmulas y tus resultados.",
+                key="results-explanation",
+            ):
+                render_result_explanation(result)
         source = st.session_state.get("analysis_source")
         source_label = f" · {source}" if source else ""
         st.caption(
