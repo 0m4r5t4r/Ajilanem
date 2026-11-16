@@ -1,3 +1,5 @@
+import csv
+import io
 import math
 import re
 from pathlib import Path
@@ -1524,6 +1526,52 @@ def parse_numbers(raw: str) -> list[float]:
         values.append(value)
     return values
 
+def read_csv_data(contents: bytes, has_header: bool) -> pd.DataFrame:
+    try:
+        text = contents.decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise ValueError("El archivo debe estar guardado como CSV UTF-8.") from exc
+    if not text.strip():
+        raise ValueError("El archivo CSV está vacío.")
+
+    header = 0 if has_header else None
+    try:
+        delimiter = csv.Sniffer().sniff(
+            text[:4096],
+            delimiters=",;\t",
+        ).delimiter
+    except csv.Error:
+        delimiter = ","
+    decimal = (
+        ","
+        if delimiter in {";", "\t"} and re.search(r"\d,\d", text)
+        else "."
+    )
+    try:
+        data = pd.read_csv(
+            io.StringIO(text),
+            sep=delimiter,
+            header=header,
+            decimal=decimal,
+            skipinitialspace=True,
+        )
+    except (pd.errors.EmptyDataError, pd.errors.ParserError) as exc:
+        raise ValueError("No se pudo interpretar el contenido del CSV.") from exc
+
+    if data.empty or data.shape[1] == 0:
+        raise ValueError("El archivo CSV no contiene filas de datos.")
+    return data
+
+def numeric_csv_columns(data: pd.DataFrame) -> list[int]:
+    numeric_columns = []
+    for index in range(data.shape[1]):
+        column = data.iloc[:, index]
+        non_blank = column.notna() & column.astype(str).str.strip().ne("")
+        values = pd.to_numeric(column[non_blank], errors="coerce")
+        if non_blank.any() and values.notna().all() and np.isfinite(values.to_numpy(dtype=float)).all():
+            numeric_columns.append(index)
+    return numeric_columns
+
 def frequency_distribution(values: list[float]):
     data = np.asarray(values, dtype=float)
     n = len(data)
@@ -1809,17 +1857,26 @@ def chart_option(result: dict, chart_kind: str, palette: dict[str, str]) -> dict
 
     return base
 
-EXAMPLE_DATA = "12, 15, 18, 22, 25, 25, 28, 30, 32, 35, 38, 40, 42, 45, 48, 50, 55, 60, 65, 70"
+EXAMPLE_DATASETS = {
+    "Edades": [18, 19, 19, 20, 20, 21, 21, 21, 22, 22, 23, 23, 24, 24, 25, 26, 27, 28, 30, 32],
+    "Notas o calificaciones": [5.5, 6.0, 6.2, 6.5, 6.8, 7.0, 7.1, 7.2, 7.5, 7.5, 7.8, 8.0, 8.2, 8.4, 8.5, 8.7, 9.0, 9.2, 9.5, 10.0],
+}
 
-def restore_example():
-    st.session_state.raw_values = EXAMPLE_DATA
-    st.session_state.analysis_result = frequency_distribution(parse_numbers(EXAMPLE_DATA))
+def restore_selected_example():
+    name = st.session_state.example_dataset
+    values = EXAMPLE_DATASETS[name]
+    st.session_state.raw_values = ", ".join(str(value) for value in values)
+    st.session_state.analysis_result = frequency_distribution(values)
+    st.session_state.analysis_source = f"Ejemplo: {name}"
     st.session_state.pop("analysis_error", None)
+    st.session_state.pop("analysis_notice", None)
 
 def clear_data():
     st.session_state.raw_values = ""
     st.session_state.pop("analysis_result", None)
     st.session_state.pop("analysis_error", None)
+    st.session_state.pop("analysis_source", None)
+    st.session_state.pop("analysis_notice", None)
 
 if "raw_values" not in st.session_state:
     st.session_state.raw_values = ""
@@ -1850,8 +1907,8 @@ with st.container(border=True, key="data-card"):
         st.subheader("Tus datos, en claro")
         st.caption("Pégalos separados por comas, espacios o saltos de línea.")
     with input_column:
-        values_column, action_column, example_column = st.columns(
-            [3.8, 1.7, 1.3],
+        values_column, action_column = st.columns(
+            [3.8, 1.7],
             gap="small",
             vertical_alignment="center",
         )
@@ -1871,37 +1928,134 @@ with st.container(border=True, key="data-card"):
                 width="stretch",
                 icon=":material/calculate:",
             )
+        example_column, example_action_column = st.columns(
+            [3.8, 1.7],
+            gap="small",
+            vertical_alignment="bottom",
+        )
         with example_column:
+            st.selectbox(
+                "Ejemplo de datos",
+                options=list(EXAMPLE_DATASETS),
+                key="example_dataset",
+            )
+        with example_action_column:
             st.button(
-                "Ejemplo",
+                "Cargar ejemplo",
                 type="secondary",
                 width="stretch",
-                help="Cargar un conjunto de datos de ejemplo.",
                 icon=":material/auto_awesome:",
-                on_click=restore_example,
+                on_click=restore_selected_example,
             )
+
+        st.divider()
+        st.markdown("#### Importar datos desde un CSV")
+        uploaded_csv = st.file_uploader(
+            "Selecciona un archivo CSV",
+            type=["csv"],
+            help=(
+                "El archivo debe contener una columna numérica. Si tiene varias, "
+                "podrás elegir cuál analizar. Para usar coma decimal, separa las "
+                "columnas con punto y coma."
+            ),
+            key="csv-upload",
+        )
+        if uploaded_csv is not None:
+            header_column, _ = st.columns([1, 1])
+            with header_column:
+                has_header = st.checkbox(
+                    "La primera fila contiene encabezados",
+                    value=True,
+                    key="csv-has-header",
+                )
+            try:
+                csv_data = read_csv_data(uploaded_csv.getvalue(), has_header)
+            except ValueError as exc:
+                st.error(f"No se pudo leer el CSV: {exc}")
+            else:
+                available_columns = numeric_csv_columns(csv_data)
+                if not available_columns:
+                    st.warning("No se encontraron columnas numéricas válidas en el archivo.")
+                else:
+                    def column_label(index: int) -> str:
+                        name = str(csv_data.columns[index])
+                        return f"{name} (columna {index + 1})"
+
+                    selected_column = st.selectbox(
+                        "Columna numérica que quieres analizar",
+                        options=available_columns,
+                        format_func=column_label,
+                        key="csv-numeric-column",
+                    )
+                    st.dataframe(
+                        csv_data.head(5),
+                        width="stretch",
+                        hide_index=True,
+                        alt="Vista previa de las primeras cinco filas del archivo CSV",
+                    )
+                    if st.button(
+                        "Analizar columna",
+                        type="primary",
+                        icon=":material/analytics:",
+                        key="analyze-csv",
+                    ):
+                        source_column = csv_data.iloc[:, selected_column]
+                        non_blank = (
+                            source_column.notna()
+                            & source_column.astype(str).str.strip().ne("")
+                        )
+                        values = pd.to_numeric(
+                            source_column[non_blank],
+                            errors="raise",
+                        ).to_numpy(dtype=float)
+                        if not np.isfinite(values).all():
+                            st.session_state.analysis_result = None
+                            st.session_state.analysis_error = (
+                                "La columna debe contener solo números finitos."
+                            )
+                        else:
+                            st.session_state.analysis_result = frequency_distribution(
+                                values.tolist()
+                            )
+                            st.session_state.analysis_error = None
+                            st.session_state.analysis_source = (
+                                f"{uploaded_csv.name} · {column_label(selected_column)}"
+                            )
+                            st.session_state.analysis_notice = (
+                                f"Se analizaron {len(values)} valores; "
+                                f"se ignoraron {len(source_column) - len(values)} celdas vacías."
+                            )
 
 if run:
     try:
         st.session_state.analysis_result = frequency_distribution(parse_numbers(raw))
         st.session_state.analysis_error = None
+        st.session_state.analysis_source = "Entrada manual"
+        st.session_state.pop("analysis_notice", None)
     except ValueError as exc:
         st.session_state.analysis_result = None
         st.session_state.analysis_error = str(exc)
+        st.session_state.pop("analysis_source", None)
+        st.session_state.pop("analysis_notice", None)
 
 result = st.session_state.get("analysis_result")
 error = st.session_state.get("analysis_error")
 
 if error:
     st.error(f"Revisa tus datos: {error}")
+if st.session_state.get("analysis_notice"):
+    st.info(st.session_state.analysis_notice)
 
 if result is not None:
     title_column, clear_column = st.columns([1, 0.22], gap="medium", vertical_alignment="center")
     width_label = f"{result['width']:g}" if result["integer_data"] else f"{result['width']:.2f}"
     with title_column:
         st.subheader("Resultados", icon=":material/analytics:")
+        source = st.session_state.get("analysis_source")
+        source_label = f" · {source}" if source else ""
         st.caption(
             f"{result['n']} datos · {result['k']} intervalos · amplitud {width_label}"
+            f"{source_label}"
         )
     with clear_column:
         st.button("Limpiar", type="tertiary", width="stretch", on_click=clear_data)
